@@ -1,0 +1,8 @@
+{
+  "id": "vienna",
+  "name": "Vienna",
+  "version": "1.0.0",
+  "dependencies": {
+    "subway-builder": ">=1.0.0"
+  }
+}
