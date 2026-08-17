@@ -77,9 +77,9 @@
     "_gravity_comment": "Doubly-constrained gravity model. beta is the distance-decay in the impedance exp(-beta * d_km); 0.16 gives a median commute around 6-7 km, which matches Vienna's actual modal commute. intra_zone_share is the fraction of workers who work in their own cell.",
     "gravity_beta": 0.16,
     "intra_zone_share": 0.08,
-    "_employment_comment": "Jobs modelled inside the bbox. Vienna has roughly 900k jobs; ~250k of those are filled by Umland commuters who enter from outside the map, which the outside_connection points below represent instead.",
-    "total_jobs": 900000,
-    "jobs_from_outside": 250000,
+    "_employment_comment": "Jobs modelled inside the bbox. Both figures are published, not estimated: STATISTIK AUSTRIA, Abgestimmte Erwerbsstatistik 2024, Wien - Erwerbstaetige am Arbeitsort = 1,111,548; Einpendler:innen from other Bundeslaender = 284,847. The difference, 826,701, is Vienna's employed residents (938,544) minus out-commuters (111,843) - i.e. the people who both live and work in the city, which is exactly what the gravity model distributes. Source: https://www.statistik.at/statistiken/arbeitsmarkt/erwerbstaetigkeit/arbeitsort-und-pendeln",
+    "total_jobs": 1111548,
+    "jobs_from_outside": 284847,
     "routing_method": "osrm",
     "osrm_port": 5000,
     "target_pops": 30000,
@@ -821,7 +821,7 @@
       "max_distance": 35000
     }
   ],
-  "_outside_connections_comment": "Umland commuters entering the map. These sit at the edge of the bbox on the real rail/road corridors, so the game models the ~250k people who commute into Vienna daily from Niederösterreich and Burgenland. Sizes are rough shares of that total.",
+  "_outside_connections_comment": "Umland in-commuters entering the map from outside. Corridor split reflects rail/road corridor weight; the total is pinned to the published figure - STATISTIK AUSTRIA, Abgestimmte Erwerbsstatistik 2024: 284,847 Einpendler:innen into Wien from other Bundeslaender (Niederoesterreich 207,177, Burgenland 25,081, Steiermark 16,315, Oberoesterreich 15,201, Kaernten 6,860, Tirol 6,519, Salzburg 5,538, Vorarlberg 2,156). The per-corridor allocation is modelled, not published.",
   "outside_connections": [
     {
       "code": "OCSD",
@@ -831,7 +831,7 @@
         16.335,
         48.095
       ],
-      "size": 60000,
+      "size": 68363,
       "pop_size": 200,
       "merge_within": 500
     },
@@ -843,7 +843,7 @@
         16.53,
         48.13
       ],
-      "size": 30000,
+      "size": 34182,
       "pop_size": 200,
       "merge_within": 500
     },
@@ -855,7 +855,7 @@
         16.18,
         48.2
       ],
-      "size": 45000,
+      "size": 51272,
       "pop_size": 200,
       "merge_within": 500
     },
@@ -867,7 +867,7 @@
         16.305,
         48.32
       ],
-      "size": 30000,
+      "size": 34182,
       "pop_size": 200,
       "merge_within": 500
     },
@@ -879,7 +879,7 @@
         16.44,
         48.325
       ],
-      "size": 45000,
+      "size": 51272,
       "pop_size": 200,
       "merge_within": 500
     },
@@ -891,7 +891,7 @@
         16.59,
         48.22
       ],
-      "size": 20000,
+      "size": 22788,
       "pop_size": 200,
       "merge_within": 500
     },
@@ -903,7 +903,7 @@
         16.59,
         48.12
       ],
-      "size": 20000,
+      "size": 22788,
       "pop_size": 200,
       "merge_within": 500
     }
