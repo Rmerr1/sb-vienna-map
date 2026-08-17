@@ -1,0 +1,35 @@
+{
+  "id": "vienna",
+  "name": "Vienna",
+  "city_code": "VIEN",
+  "country": "AT",
+  "population": 1490600,
+  "residents_total": 1490600,
+  "points_count": 3829,
+  "population_count": 33734,
+  "initial_view_state": {
+    "latitude": 48.2085,
+    "longitude": 16.373,
+    "zoom": 12,
+    "bearing": 0
+  },
+  "bbox": [
+    16.17,
+    48.09,
+    16.6,
+    48.33
+  ],
+  "file_sizes": {
+    "VIEN.pmtiles": 23.63,
+    "config.json": 0.0,
+    "demand_data.json": 24.87,
+    "roads.geojson": 10.23,
+    "VIEN_foundations.pmtiles": 15.84,
+    "buildings_index.bin.gz": 14.45,
+    "buildings_index.json": 58.32,
+    "runways_taxiways.geojson": 0.3,
+    "ocean_depth_index.json.gz": 1.61
+  },
+  "zip": "/home/ricky/vienna/dist/VIEN-v1.0.0.zip",
+  "zip_size_mib": 71.38
+}

@@ -1,0 +1,911 @@
+{
+  "_comment": "Vienna (VIE) map configuration for Subway Builder / Railyard. Every number here is a tuning knob - edit freely and re-run the relevant script. Coordinates are [longitude, latitude].",
+  "map_code": "VIEN",
+  "map_name": "Vienna",
+  "country": "AT",
+  "creator": "Rmerr1",
+  "version": "1.0.0",
+  "description": "Build the U-Bahn Vienna never got. All 23 districts plus Flughafen Wien-Schwechat.",
+  "_bbox_comment": "City limits (Stadtgrenze) extended south-east to include Flughafen Wien-Schwechat, which sits in Lower Austria just outside the city boundary. Roughly 32 km x 27 km.",
+  "bbox": [
+    16.17,
+    48.09,
+    16.6,
+    48.33
+  ],
+  "_initial_view_comment": "Stephansplatz - the historic centre and the U1/U3 interchange.",
+  "initial_view_state": [
+    16.373,
+    48.2085
+  ],
+  "osmpbf": "data/austria-latest.osm.pbf",
+  "outputdir": "build",
+  "map_generation": {
+    "_comment": "Vienna is dense and building-rich. Filter sizes of 20 m2 keep Kleingarten sheds and inner-courtyard outbuildings out of the collision index without losing real structures. Raise to 40 if the buildings index gets too large.",
+    "building_index_filter_size": 20,
+    "building_tile_filter_size": 20,
+    "building_index_simplification": 1,
+    "building_tile_simplification": 1,
+    "max_building_tile_size": 450,
+    "maxzoom": 15,
+    "create_building_foundations": true,
+    "create_ocean_foundations": true,
+    "color_military_like_aerodrome": true,
+    "ncores": 8,
+    "RAM": 8,
+    "_overture_comment": "Depot discovers the newest Overture release from https://stac.overturemaps.org/catalog.json, which now 404s - the catalog moved and depot was not updated. Pinning the release here skips that lookup entirely. Check https://docs.overturemaps.org/release-calendar/ for newer ones; format is yyyy-mm-dd.x. Set to null to try depot's own lookup again.",
+    "overture_release": "2026-07-22.0",
+    "_buildings_geojson_comment": "Pre-fetched buildings file. When set, depot skips its own DuckDB/S3 fetch entirely - the escape hatch when DuckDB's httpfs layer cannot read Overture's parquet. Fetch raw with: overturemaps download --bbox=16.17,48.09,16.6,48.33 -f geojson --type=building -o ~/vienna/data/buildings.geojson, then run scripts/01a_building_heights.py to produce the file below. Set to null to let depot fetch buildings itself.",
+    "buildings_geojson": "~/vienna/data/buildings_with_heights.geojson",
+    "_building_heights_comment": "Only ~41% of Overture's Vienna buildings carry a height and ~19% a floor count; depot would flatten the rest to 4 m. Script 01a fills them in: real height first, floors x metres_per_floor second, then the median of nearby buildings that do have one. metres_per_floor of 3.2 suits Vienna's mix of tall Gründerzeit and shorter modern floors. Lower min_samples_per_cell if too many buildings fall back to the city-wide median.",
+    "building_heights": {
+      "metres_per_floor": 3.2,
+      "impute_grid_deg": 0.002,
+      "fallback_grid_deg": 0.01,
+      "min_samples_per_cell": 3
+    },
+    "_labels_comment": "Vienna's OSM place tags: 'city' = Wien itself, 'town'/'village' = Lower Austrian settlements just over the border, 'suburb' = the 23 Bezirke (Leopoldstadt, Favoriten...), 'quarter'/'neighbourhood' = Grätzl level (Servitenviertel, Sonnwendviertel...). Run obj.check_labels() after extract_base_data to see actual counts before committing to these.",
+    "cities": [
+      "city",
+      "town"
+    ],
+    "suburbs": [
+      "city",
+      "town",
+      "suburb",
+      "village"
+    ],
+    "neighborhoods": [
+      "suburb",
+      "quarter",
+      "neighbourhood",
+      "borough",
+      "hamlet"
+    ],
+    "_language_comment": "Vienna's OSM data is already German-primary, so leave these null. Set to 'prefer:en' only if you want an English-labelled map.",
+    "label_name_language": null,
+    "road_name_preferred_language": null
+  },
+  "demand_generation": {
+    "_comment": "Base residents/jobs demand. TARGET_POINTS controls map performance: more points = finer demand but slower routing and a bigger file. 4000-6000 is a good range for a city this size.",
+    "grid_resolution_m": 250,
+    "target_points": 5000,
+    "MAXPOPSIZE": 200,
+    "min_flow_size": 8,
+    "_top_k_comment": "DEPRECATED - top_k_destinations is no longer used. Pop emission now samples OD pairs in proportion to modelled flow; target_pops sets how many draws, i.e. roughly the pop count. Higher = finer demand, bigger file, slower routing in step 03. sample_seed makes the sampling reproducible.",
+    "top_k_destinations": 30,
+    "_gravity_comment": "Doubly-constrained gravity model. beta is the distance-decay in the impedance exp(-beta * d_km); 0.16 gives a median commute around 6-7 km, which matches Vienna's actual modal commute. intra_zone_share is the fraction of workers who work in their own cell.",
+    "gravity_beta": 0.16,
+    "intra_zone_share": 0.08,
+    "_employment_comment": "Jobs modelled inside the bbox. Vienna has roughly 900k jobs; ~250k of those are filled by Umland commuters who enter from outside the map, which the outside_connection points below represent instead.",
+    "total_jobs": 900000,
+    "jobs_from_outside": 250000,
+    "routing_method": "osrm",
+    "osrm_port": 5000,
+    "target_pops": 30000,
+    "sample_seed": 20260817
+  },
+  "_special_demand_comment": "Special demand points. 'type' values must come from depot's taxonomy - print DemandData(...).special_demand_codes.keys() to see the full list. total_capacity is people per day; pop_size is how many people per generated pop; merge_within is the metres within which nearby generated points get merged.",
+  "airports": [
+    {
+      "type": "airport",
+      "code": "VIE",
+      "name": "Flughafen Wien-Schwechat",
+      "location": [
+        16.5644,
+        48.1207
+      ],
+      "daily_passengers": 30000,
+      "staff": 20000,
+      "staff_perc_travel": 0.85,
+      "pop_size": 200,
+      "merge_within": 400,
+      "max_distance": 45000
+    }
+  ],
+  "universities": [
+    {
+      "code": "UNIW",
+      "name": "Universität Wien (Hauptgebäude)",
+      "type": "university",
+      "location": [
+        16.36,
+        48.2131
+      ],
+      "students": 40000,
+      "perc_oncampus": 0.0,
+      "pop_size": 200,
+      "merge_within": 300,
+      "max_distance": 35000
+    },
+    {
+      "code": "UNIA",
+      "name": "Universität Wien (Campus Altes AKH)",
+      "type": "university",
+      "location": [
+        16.3527,
+        48.2166
+      ],
+      "students": 20000,
+      "perc_oncampus": 0.0,
+      "pop_size": 200,
+      "merge_within": 300,
+      "max_distance": 35000
+    },
+    {
+      "code": "UNIB",
+      "name": "Universität Wien (Biologiezentrum Djerassiplatz)",
+      "type": "university",
+      "location": [
+        16.4225,
+        48.2286
+      ],
+      "students": 8000,
+      "perc_oncampus": 0.0,
+      "pop_size": 100,
+      "merge_within": 250,
+      "max_distance": 35000
+    },
+    {
+      "code": "UNIU",
+      "name": "Universität Wien (UZA II Geozentrum)",
+      "type": "university",
+      "location": [
+        16.396,
+        48.2295
+      ],
+      "students": 6000,
+      "perc_oncampus": 0.0,
+      "pop_size": 100,
+      "merge_within": 250,
+      "max_distance": 35000
+    },
+    {
+      "code": "TUWK",
+      "name": "TU Wien (Karlsplatz)",
+      "type": "university",
+      "location": [
+        16.3695,
+        48.1985
+      ],
+      "students": 14000,
+      "perc_oncampus": 0.0,
+      "pop_size": 200,
+      "merge_within": 300,
+      "max_distance": 35000
+    },
+    {
+      "code": "TUWG",
+      "name": "TU Wien (Getreidemarkt)",
+      "type": "university",
+      "location": [
+        16.364,
+        48.1985
+      ],
+      "students": 7000,
+      "perc_oncampus": 0.0,
+      "pop_size": 100,
+      "merge_within": 250,
+      "max_distance": 35000
+    },
+    {
+      "code": "TUWA",
+      "name": "TU Wien (Science Center Arsenal)",
+      "type": "university",
+      "location": [
+        16.386,
+        48.1836
+      ],
+      "students": 4000,
+      "perc_oncampus": 0.0,
+      "pop_size": 100,
+      "merge_within": 250,
+      "max_distance": 35000
+    },
+    {
+      "code": "WUWI",
+      "name": "Wirtschaftsuniversität Wien (Campus WU)",
+      "type": "university",
+      "location": [
+        16.4085,
+        48.2135
+      ],
+      "students": 21000,
+      "perc_oncampus": 0.0,
+      "pop_size": 200,
+      "merge_within": 300,
+      "max_distance": 35000
+    },
+    {
+      "code": "BOKT",
+      "name": "BOKU (Türkenschanze)",
+      "type": "university",
+      "location": [
+        16.332,
+        48.2384
+      ],
+      "students": 6500,
+      "perc_oncampus": 0.0,
+      "pop_size": 100,
+      "merge_within": 250,
+      "max_distance": 35000
+    },
+    {
+      "code": "BOKM",
+      "name": "BOKU (Muthgasse)",
+      "type": "university",
+      "location": [
+        16.3585,
+        48.247
+      ],
+      "students": 3000,
+      "perc_oncampus": 0.0,
+      "pop_size": 100,
+      "merge_within": 200,
+      "max_distance": 35000
+    },
+    {
+      "code": "MEDU",
+      "name": "Medizinische Universität Wien",
+      "type": "university",
+      "location": [
+        16.3462,
+        48.2205
+      ],
+      "students": 8000,
+      "perc_oncampus": 0.0,
+      "pop_size": 100,
+      "merge_within": 250,
+      "max_distance": 35000
+    },
+    {
+      "code": "MDWR",
+      "name": "mdw - Universität für Musik und darstellende Kunst",
+      "type": "university",
+      "location": [
+        16.3855,
+        48.1957
+      ],
+      "students": 3000,
+      "perc_oncampus": 0.0,
+      "pop_size": 50,
+      "merge_within": 200,
+      "max_distance": 30000
+    },
+    {
+      "code": "ANGE",
+      "name": "Universität für angewandte Kunst",
+      "type": "university",
+      "location": [
+        16.3822,
+        48.2069
+      ],
+      "students": 2000,
+      "perc_oncampus": 0.0,
+      "pop_size": 50,
+      "merge_within": 200,
+      "max_distance": 30000
+    },
+    {
+      "code": "AKBK",
+      "name": "Akademie der bildenden Künste",
+      "type": "university",
+      "location": [
+        16.365,
+        48.2005
+      ],
+      "students": 1600,
+      "perc_oncampus": 0.0,
+      "pop_size": 50,
+      "merge_within": 200,
+      "max_distance": 30000
+    },
+    {
+      "code": "VETM",
+      "name": "Veterinärmedizinische Universität Wien",
+      "type": "university",
+      "location": [
+        16.4285,
+        48.256
+      ],
+      "students": 2400,
+      "perc_oncampus": 0.0,
+      "pop_size": 50,
+      "merge_within": 250,
+      "max_distance": 35000
+    },
+    {
+      "code": "FHCW",
+      "name": "FH Campus Wien",
+      "type": "university",
+      "location": [
+        16.3865,
+        48.1585
+      ],
+      "students": 9000,
+      "perc_oncampus": 0.0,
+      "pop_size": 100,
+      "merge_within": 250,
+      "max_distance": 35000
+    },
+    {
+      "code": "FHTW",
+      "name": "FH Technikum Wien",
+      "type": "university",
+      "location": [
+        16.3765,
+        48.2395
+      ],
+      "students": 4500,
+      "perc_oncampus": 0.0,
+      "pop_size": 100,
+      "merge_within": 200,
+      "max_distance": 35000
+    },
+    {
+      "code": "FHBF",
+      "name": "FH des BFI Wien",
+      "type": "university",
+      "location": [
+        16.4045,
+        48.1855
+      ],
+      "students": 2500,
+      "perc_oncampus": 0.0,
+      "pop_size": 50,
+      "merge_within": 200,
+      "max_distance": 30000
+    }
+  ],
+  "_univ_travel_comment": "[fraction of on-campus residents who travel, fraction of off-campus students who travel]. Austrian universities are almost entirely commuter campuses - there are no US-style dorms - so perc_oncampus is 0 everywhere.",
+  "univ_perc_travel": [
+    0.3,
+    0.85
+  ],
+  "hospitals": [
+    {
+      "code": "AKHW",
+      "name": "AKH Wien - Universitätsklinikum",
+      "type": "hospital",
+      "location": [
+        16.3462,
+        48.2205
+      ],
+      "daily_people": 26000,
+      "pop_size": 200,
+      "merge_within": 350,
+      "max_distance": 40000
+    },
+    {
+      "code": "KDON",
+      "name": "Klinik Donaustadt",
+      "type": "hospital",
+      "location": [
+        16.4676,
+        48.232
+      ],
+      "daily_people": 8000,
+      "pop_size": 100,
+      "merge_within": 250,
+      "max_distance": 30000
+    },
+    {
+      "code": "KFAV",
+      "name": "Klinik Favoriten",
+      "type": "hospital",
+      "location": [
+        16.3906,
+        48.1743
+      ],
+      "daily_people": 8000,
+      "pop_size": 100,
+      "merge_within": 250,
+      "max_distance": 30000
+    },
+    {
+      "code": "KOTT",
+      "name": "Klinik Ottakring",
+      "type": "hospital",
+      "location": [
+        16.3175,
+        48.2126
+      ],
+      "daily_people": 8000,
+      "pop_size": 100,
+      "merge_within": 250,
+      "max_distance": 30000
+    },
+    {
+      "code": "KLAN",
+      "name": "Klinik Landstraße",
+      "type": "hospital",
+      "location": [
+        16.3936,
+        48.2036
+      ],
+      "daily_people": 6500,
+      "pop_size": 100,
+      "merge_within": 250,
+      "max_distance": 30000
+    },
+    {
+      "code": "KHIE",
+      "name": "Klinik Hietzing",
+      "type": "hospital",
+      "location": [
+        16.2932,
+        48.178
+      ],
+      "daily_people": 6500,
+      "pop_size": 100,
+      "merge_within": 250,
+      "max_distance": 30000
+    },
+    {
+      "code": "KFLO",
+      "name": "Klinik Floridsdorf",
+      "type": "hospital",
+      "location": [
+        16.4076,
+        48.268
+      ],
+      "daily_people": 6000,
+      "pop_size": 100,
+      "merge_within": 250,
+      "max_distance": 30000
+    },
+    {
+      "code": "KPEN",
+      "name": "Klinik Penzing",
+      "type": "hospital",
+      "location": [
+        16.2905,
+        48.1975
+      ],
+      "daily_people": 4000,
+      "pop_size": 50,
+      "merge_within": 250,
+      "max_distance": 30000
+    },
+    {
+      "code": "BBRD",
+      "name": "Krankenhaus der Barmherzigen Brüder",
+      "type": "hospital",
+      "location": [
+        16.3785,
+        48.2175
+      ],
+      "daily_people": 4000,
+      "pop_size": 50,
+      "merge_within": 200,
+      "max_distance": 30000
+    },
+    {
+      "code": "HANU",
+      "name": "Hanusch-Krankenhaus",
+      "type": "hospital",
+      "location": [
+        16.3095,
+        48.1958
+      ],
+      "daily_people": 3500,
+      "pop_size": 50,
+      "merge_within": 200,
+      "max_distance": 30000
+    },
+    {
+      "code": "SPEI",
+      "name": "Orthopädisches Spital Speising",
+      "type": "hospital",
+      "location": [
+        16.279,
+        48.169
+      ],
+      "daily_people": 2500,
+      "pop_size": 50,
+      "merge_within": 200,
+      "max_distance": 30000
+    },
+    {
+      "code": "STAN",
+      "name": "St. Anna Kinderspital",
+      "type": "hospital",
+      "location": [
+        16.3505,
+        48.2225
+      ],
+      "daily_people": 2000,
+      "pop_size": 50,
+      "merge_within": 150,
+      "max_distance": 30000
+    }
+  ],
+  "venues": [
+    {
+      "code": "HAPP",
+      "name": "Ernst-Happel-Stadion",
+      "type": "sports_facility",
+      "location": [
+        16.4206,
+        48.2072
+      ],
+      "size": 50000,
+      "pop_size": 200,
+      "merge_within": 400,
+      "max_distance": 40000
+    },
+    {
+      "code": "STHA",
+      "name": "Wiener Stadthalle",
+      "type": "sports_facility",
+      "location": [
+        16.3325,
+        48.2018
+      ],
+      "size": 16000,
+      "pop_size": 200,
+      "merge_within": 300,
+      "max_distance": 35000
+    },
+    {
+      "code": "ALLI",
+      "name": "Allianz Stadion (Rapid Wien)",
+      "type": "sports_facility",
+      "location": [
+        16.2686,
+        48.1983
+      ],
+      "size": 28000,
+      "pop_size": 200,
+      "merge_within": 350,
+      "max_distance": 40000
+    },
+    {
+      "code": "GENE",
+      "name": "Generali-Arena (Austria Wien)",
+      "type": "sports_facility",
+      "location": [
+        16.3866,
+        48.1618
+      ],
+      "size": 17500,
+      "pop_size": 200,
+      "merge_within": 300,
+      "max_distance": 35000
+    },
+    {
+      "code": "MSPO",
+      "name": "Marx Halle / St. Marx",
+      "type": "convention_center",
+      "location": [
+        16.402,
+        48.1875
+      ],
+      "size": 8000,
+      "pop_size": 100,
+      "merge_within": 250,
+      "max_distance": 30000
+    },
+    {
+      "code": "AWMS",
+      "name": "Messe Wien",
+      "type": "convention_center",
+      "location": [
+        16.409,
+        48.2178
+      ],
+      "size": 12000,
+      "pop_size": 200,
+      "merge_within": 300,
+      "max_distance": 35000
+    },
+    {
+      "code": "PRAT",
+      "name": "Wurstelprater",
+      "type": "amusement_park",
+      "location": [
+        16.3958,
+        48.2166
+      ],
+      "size": 12000,
+      "pop_size": 200,
+      "merge_within": 300,
+      "max_distance": 35000
+    },
+    {
+      "code": "SCHO",
+      "name": "Schloss Schönbrunn",
+      "type": "heritage_site",
+      "location": [
+        16.3122,
+        48.1845
+      ],
+      "size": 15000,
+      "pop_size": 200,
+      "merge_within": 350,
+      "max_distance": 35000
+    },
+    {
+      "code": "TIER",
+      "name": "Tiergarten Schönbrunn",
+      "type": "zoo",
+      "location": [
+        16.3025,
+        48.1817
+      ],
+      "size": 6000,
+      "pop_size": 100,
+      "merge_within": 250,
+      "max_distance": 35000
+    },
+    {
+      "code": "STEP",
+      "name": "Stephansplatz / Innere Stadt",
+      "type": "heritage_site",
+      "location": [
+        16.373,
+        48.2085
+      ],
+      "size": 30000,
+      "pop_size": 200,
+      "merge_within": 300,
+      "max_distance": 35000
+    },
+    {
+      "code": "MQWI",
+      "name": "MuseumsQuartier",
+      "type": "cultural_center",
+      "location": [
+        16.359,
+        48.2032
+      ],
+      "size": 9000,
+      "pop_size": 100,
+      "merge_within": 250,
+      "max_distance": 30000
+    },
+    {
+      "code": "KHMW",
+      "name": "Kunsthistorisches Museum",
+      "type": "museum",
+      "location": [
+        16.3617,
+        48.2038
+      ],
+      "size": 4000,
+      "pop_size": 100,
+      "merge_within": 200,
+      "max_distance": 30000
+    },
+    {
+      "code": "SCHB",
+      "name": "Schönbrunner Bad / Donauinsel Nord",
+      "type": "park",
+      "location": [
+        16.4055,
+        48.2455
+      ],
+      "size": 10000,
+      "pop_size": 100,
+      "merge_within": 400,
+      "max_distance": 30000
+    },
+    {
+      "code": "DONA",
+      "name": "Donauinsel (Copa Beach)",
+      "type": "park",
+      "location": [
+        16.411,
+        48.2295
+      ],
+      "size": 14000,
+      "pop_size": 200,
+      "merge_within": 400,
+      "max_distance": 30000
+    },
+    {
+      "code": "LAWA",
+      "name": "Lainzer Tiergarten",
+      "type": "park",
+      "location": [
+        16.236,
+        48.177
+      ],
+      "size": 3000,
+      "pop_size": 50,
+      "merge_within": 400,
+      "max_distance": 30000
+    },
+    {
+      "code": "KAHL",
+      "name": "Kahlenberg",
+      "type": "natural_feature",
+      "location": [
+        16.333,
+        48.2765
+      ],
+      "size": 3500,
+      "pop_size": 50,
+      "merge_within": 300,
+      "max_distance": 30000
+    },
+    {
+      "code": "SCSN",
+      "name": "Shopping City Nord",
+      "type": "shopping_center",
+      "location": [
+        16.403,
+        48.266
+      ],
+      "size": 14000,
+      "pop_size": 200,
+      "merge_within": 300,
+      "max_distance": 30000
+    },
+    {
+      "code": "AUHO",
+      "name": "Auhof Center",
+      "type": "shopping_center",
+      "location": [
+        16.227,
+        48.2075
+      ],
+      "size": 9000,
+      "pop_size": 100,
+      "merge_within": 250,
+      "max_distance": 30000
+    },
+    {
+      "code": "MILL",
+      "name": "Millennium City",
+      "type": "shopping_center",
+      "location": [
+        16.3855,
+        48.24
+      ],
+      "size": 9000,
+      "pop_size": 100,
+      "merge_within": 250,
+      "max_distance": 30000
+    },
+    {
+      "code": "HUMA",
+      "name": "Huma Eleven",
+      "type": "shopping_center",
+      "location": [
+        16.4245,
+        48.1855
+      ],
+      "size": 8000,
+      "pop_size": 100,
+      "merge_within": 250,
+      "max_distance": 30000
+    },
+    {
+      "code": "MAHÜ",
+      "name": "Mariahilfer Straße",
+      "type": "shopping_center",
+      "location": [
+        16.348,
+        48.1985
+      ],
+      "size": 26000,
+      "pop_size": 200,
+      "merge_within": 400,
+      "max_distance": 35000
+    },
+    {
+      "code": "RATH",
+      "name": "Rathaus / Regierungsviertel",
+      "type": "government_facility",
+      "location": [
+        16.3573,
+        48.2108
+      ],
+      "size": 12000,
+      "pop_size": 200,
+      "merge_within": 300,
+      "max_distance": 35000
+    },
+    {
+      "code": "UNOC",
+      "name": "Vienna International Centre (UNO City)",
+      "type": "government_facility",
+      "location": [
+        16.4166,
+        48.235
+      ],
+      "size": 5000,
+      "pop_size": 100,
+      "merge_within": 250,
+      "max_distance": 35000
+    }
+  ],
+  "_outside_connections_comment": "Umland commuters entering the map. These sit at the edge of the bbox on the real rail/road corridors, so the game models the ~250k people who commute into Vienna daily from Niederösterreich and Burgenland. Sizes are rough shares of that total.",
+  "outside_connections": [
+    {
+      "code": "OCSD",
+      "name": "Südbahn-Korridor (Mödling, Baden, Wiener Neustadt)",
+      "type": "outside_connection",
+      "location": [
+        16.335,
+        48.095
+      ],
+      "size": 60000,
+      "pop_size": 200,
+      "merge_within": 500
+    },
+    {
+      "code": "OCOS",
+      "name": "Ostbahn-Korridor (Schwechat, Bruck an der Leitha)",
+      "type": "outside_connection",
+      "location": [
+        16.53,
+        48.13
+      ],
+      "size": 30000,
+      "pop_size": 200,
+      "merge_within": 500
+    },
+    {
+      "code": "OCWE",
+      "name": "Westbahn-Korridor (Purkersdorf, St. Pölten)",
+      "type": "outside_connection",
+      "location": [
+        16.18,
+        48.2
+      ],
+      "size": 45000,
+      "pop_size": 200,
+      "merge_within": 500
+    },
+    {
+      "code": "OCFJ",
+      "name": "Franz-Josefs-Korridor (Klosterneuburg, Tulln)",
+      "type": "outside_connection",
+      "location": [
+        16.305,
+        48.32
+      ],
+      "size": 30000,
+      "pop_size": 200,
+      "merge_within": 500
+    },
+    {
+      "code": "OCNO",
+      "name": "Nordbahn-Korridor (Gerasdorf, Wolkersdorf, Mistelbach)",
+      "type": "outside_connection",
+      "location": [
+        16.44,
+        48.325
+      ],
+      "size": 45000,
+      "pop_size": 200,
+      "merge_within": 500
+    },
+    {
+      "code": "OCPR",
+      "name": "Pressburger Korridor (Groß-Enzersdorf, Marchegg)",
+      "type": "outside_connection",
+      "location": [
+        16.59,
+        48.22
+      ],
+      "size": 20000,
+      "pop_size": 200,
+      "merge_within": 500
+    },
+    {
+      "code": "OCSO",
+      "name": "Südost-Korridor (Schwechat Süd, Fischamend)",
+      "type": "outside_connection",
+      "location": [
+        16.59,
+        48.12
+      ],
+      "size": 20000,
+      "pop_size": 200,
+      "merge_within": 500
+    }
+  ]
+}

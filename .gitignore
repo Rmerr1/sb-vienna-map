@@ -1,0 +1,14 @@
+# build artefacts and data live outside the repo, but never commit them
+*.zip
+*.pmtiles
+*.pbf
+*.geojson
+*.geojsonl
+*.gml
+*.log
+data/
+build/
+dist/
+__pycache__/
+*.pyc
+docs/handoff-brief.md
