@@ -5,8 +5,9 @@ to the Railyard registry. Coverage is all 23 districts inside the Stadtgrenze,
 extended south-east to take in Flughafen Wien-Schwechat, with special demand for
 the airport, universities, hospitals and major venues.
 
-Vienna would be the **first Austrian map in the registry** — there are 296 maps
-published and none for AT, and the city code `VIE` is free.
+Vienna would be the **first Austrian map in the registry** — there are 309 maps
+published and none for AT. The city code `VIEN` is used here; `VIE` and `WIEN` are
+also free.
 
 ---
 
@@ -22,11 +23,11 @@ published and none for AT, and the city code `VIE` is free.
 A finished map is a ZIP with all files at the archive root:
 
 ```
-VIE.pmtiles                  vector tiles the game draws
-VIE_foundations.pmtiles      building + ocean foundation layers
+VIEN.pmtiles                 vector tiles the game draws
+VIEN_foundations.pmtiles     building + ocean foundation layers
 buildings_index.bin.gz       building collision geometry
 roads.geojson                street network for in-game routing
-runways_taxiways.geojson     VIE Schwechat runways
+runways_taxiways.geojson     Schwechat runways
 demand_data.json             who commutes from where to where
 config.json                  name, code, bbox, population, camera start
 ```
@@ -244,7 +245,7 @@ straight into the registry submission.
 `config/vienna.json` is where the map's character lives. Every entry is a
 `[longitude, latitude]` plus a daily headcount:
 
-- **`airports`** — VIE modelled at 30,000 daily ground-side passengers plus
+- **`airports`** — Schwechat modelled at 30,000 daily ground-side passengers plus
   20,000 staff. The airport handled about 32 million passengers in 2025; only a
   fraction of daily passengers are a transit demand worth modelling, which is
   why the number is well below 32M/365.
@@ -274,7 +275,7 @@ where players want a station.
 SB_DELIVER_DIR=/mnt/c/Users/user/SubwayBuilder python scripts/04_package.py
 ```
 
-Produces `VIE-v1.0.0.zip` and `submission_values.json` with the exact manifest
+Produces `VIEN-v1.0.0.zip` and `submission_values.json` with the exact manifest
 numbers for the registry issue, and copies both to your Windows folder.
 
 Now play it before you publish. In Railyard, install from the local ZIP, launch
@@ -298,7 +299,7 @@ See **[docs/railyard-submission.md](docs/railyard-submission.md)** for the full
 field-by-field walkthrough. In short:
 
 1. Create a public GitHub repo (`<you>/sb-vienna-map`), push this project, and
-   attach `VIE-v1.0.0.zip` to a release tagged `v1.0.0`.
+   attach `VIEN-v1.0.0.zip` to a release tagged `v1.0.0`.
 2. Take 3–4 in-game screenshots.
 3. Open a **Publish a New Map** issue on
    <https://github.com/Subway-Builder-Modded/registry>, filling it from
@@ -330,7 +331,7 @@ docs/railyard-submission.md publishing walkthrough
 | depot exits immediately complaining about a missing program | one of the CLI tools isn't on PATH or isn't executable. Re-run `00_install_toolchain.sh` and check the final checklist. |
 | mapshaper "heap out of memory" | raise `RAM` in `config/vienna.json` (it's the GB handed to Node). |
 | tiles exceed the per-tile size limit | raise `building_tile_filter_size` or `building_tile_simplification`. |
-| `calculate_routes` hangs or errors | Docker isn't running, or the OSRM container didn't start. `docker ps` should show a container named `VIE`; `docker start VIE` if it's stopped. |
+| `calculate_routes` hangs or errors | Docker isn't running, or the OSRM container didn't start. `docker ps` should show a container named `VIEN`; `docker start VIEN` if it's stopped. |
 | Grid CSV parse error | open the CSV and check the id column really contains ETRS89-LAEA cell ids; the script prints which columns it chose. |
 
 ## Sources
