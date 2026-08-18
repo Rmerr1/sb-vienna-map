@@ -4,7 +4,7 @@
   "map_name": "Vienna",
   "country": "AT",
   "creator": "Rmerr1",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Build the U-Bahn Vienna never got. All 23 districts plus Flughafen Wien-Schwechat.",
   "_bbox_comment": "City limits (Stadtgrenze) extended south-east to include Flughafen Wien-Schwechat, which sits in Lower Austria just outside the city boundary. Roughly 32 km x 27 km.",
   "bbox": [
